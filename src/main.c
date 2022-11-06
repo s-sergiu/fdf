@@ -6,7 +6,7 @@
 /*   By: ssergiu <ssergiu@student.42heilbronn.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/30 06:57:33 by ssergiu           #+#    #+#             */
-/*   Updated: 2022/11/04 05:58:34 by ssergiu          ###   ########.fr       */
+/*   Updated: 2022/11/06 19:23:31 by ssergiu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,97 +64,117 @@ char	*read_map(char *map)
 	return(map_b);
 }
 
-#include "../lib/MLX42/include/MLX42/MLX42.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <memory.h>
-#define WIDTH 100
-#define HEIGHT 100
-#include <math.h>
-
 mlx_image_t	*y_img;
 
-void	draw_line(t_coords pointA, t_coords pointB, mlx_image_t* y_img)
+void	draw_line(t_coords *pointA, t_coords *pointB, mlx_image_t* y_img)
 {
-	int dX;
-	int	dY;
-	int pD;
-	int p;
+	double dX;
+	double dY;
+	double pD;
+	double p;
+	double testx;
+	double testy;
 
-	//bresenheim algorithm
-	while (pointA.x < pointB.x)
+	//bresenham algorithm
+	testx = pointA->x;
+	testy = pointA->y;
+	while (testx < testy)
 	{
-		dX = pointB.x - pointA.x;
-		dY = pointB.y - pointA.y;
+		dX = pointB->x - testx;
+		dY = pointB->y - testy;
+			
+		printf(" pointB->x %p\n", &testx);
+		printf("asdasda pointB->x %p\n", &pointB->x);
+
+//		printf("these two assholes %f ,%f\n", dX, dY);
 		p = (2 * dY)- dX;
 		if (p >= 0)
 		{
 			pD = p + (2 * dY) - (2 * dX);
-			mlx_put_pixel(y_img, pointA.x++, pointA.y++, 0xFFFFFF);
+			mlx_put_pixel(y_img, testx++, testy++, 0xFAFABB);
 		}
 		else if (p < 0)
 		{
 			pD = p + (2 * dY);
-			mlx_put_pixel(y_img, pointA.x++, pointA.y, 0xFFFFFF);
+			mlx_put_pixel(y_img, testx++, testy, 0xFAFABB);
 		}
 	}
 }
 
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
-	t_coords pointA;
-	t_coords pointB;
+	t_data *data;
 
-	pointA.x = 100;
-	pointA.y = 240;
+	data = param;
 
-	pointB.x = 800;
-	pointB.y = 440;
-	int x;
-	int y;
+	if (keydata.key == MLX_KEY_X && keydata.action == MLX_PRESS)
+	{
 
-	x = 10;
-	y = 11;
+		printf("%p \n", data->img);
+		draw_line(data->coordsC, data->coordsD, data->img);
+		printf("put line\n");
+	}
 	// If we PRESS the 'J' key, print "Hello".
 	if (keydata.key == MLX_KEY_J && keydata.action == MLX_PRESS)
 	{
-		draw_line(pointA, pointB, param);
-		mlx_put_pixel(param, x, y, 0xFFFFFF);
+		data->coordsA->x = 100;
+		data->coordsA->y = 100;
+		puts("hello");
 	}
 
 	// If we RELEASE the 'K' key, print "World".
 	if (keydata.key == MLX_KEY_K && keydata.action == MLX_PRESS)
-		pointB.x++;
+	{
+		printf("image width : %d\n image height : %d\n", data->img->width,
+				data->img->height);
+		ft_bzero(data->img->pixels, data->img->width * data->img->height * 4);
+	}
 
 	// If we HOLD the 'L' key, print "!".
 	if (keydata.key == MLX_KEY_L && keydata.action == MLX_PRESS)
-		pointB.y++;
+	{
+		draw_line(data->coordsA, data->coordsB, data->img);
+		printf("delete\n");
+	}
 }
 
 int32_t	main(void)
 {
-	t_coords pointA;
-	t_coords pointB;
+	t_coords	*pointA;
+	t_coords	*pointB;
+	t_coords	*pointC;
+	t_coords	*pointD;
+	t_data		*data;
 
-	pointA.x = 20;
-	pointA.y = 0;
+	pointA = (t_coords *)malloc(sizeof(t_coords));
+	pointB = (t_coords *)malloc(sizeof(t_coords));
+	pointA->x=200;
+	pointA->y=200;
+	pointB->x=400;
+	pointB->y=200;
+	pointC = (t_coords *)malloc(sizeof(t_coords));
+	pointD = (t_coords *)malloc(sizeof(t_coords));
+	pointC->x=300;
+	pointC->y=300;
+	pointD->x=500;
+	pointD->y=500;
 
-	pointB.x = 90;
-	pointB.y = 90;
-
+	data = (t_data *)malloc(sizeof(t_data));
+	data->coordsA = pointA;
+	data->coordsB = pointB;
+	data->coordsC = pointC;
+	data->coordsD = pointD;
 	mlx_set_setting(MLX_MAXIMIZED, true);
-	mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "42Balls", true);
-	if (!mlx)
+	data->mlx = mlx_init(WIDTH, HEIGHT, "fdf", true);
+	if (!data->mlx)
 		return(1);
-
+	data->img = mlx_new_image(data->mlx, 500, 500);
+	mlx_image_to_window(data->mlx, data->img, 0, 0);
 	/* Do stuff */
-	mlx_image_t* y_img = mlx_new_image(mlx, 1000, 1000);
-	mlx_image_to_window(mlx, y_img, pointA.x, pointA.y);
-	draw_line(pointA, pointB, y_img);
-	mlx_key_hook(mlx, &my_keyhook, y_img);
-	mlx_loop(mlx);
-	mlx_terminate(mlx);
+	printf("test %p\n", data->img);
+	mlx_key_hook(data->mlx, &my_keyhook, data);
+	mlx_loop(data->mlx);
+	mlx_terminate(data->mlx);
 	return (EXIT_SUCCESS);
 
 }

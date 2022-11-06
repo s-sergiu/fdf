@@ -20,7 +20,7 @@ $(NAME): $(GNL) $(LIBFT) $(OBJ)
 	-lglfw -L ~/.brew/Cellar/glfw/3.3.8/lib -o $(NAME)
 
 obj/%.o: src/%.c
-	$(CC) -Wall -Wextra -Werror -c $< -o $@
+	$(CC) -g -Wall -Wextra -Werror -c $< -o $@
 
 $(GNL): $(GNL_DIR)/*.c
 	@if  [ ! -d obj/gnl ]; then \
