@@ -6,7 +6,7 @@
 /*   By: ssergiu <ssergiu@student.42heilbronn.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/30 02:13:15 by ssergiu           #+#    #+#             */
-/*   Updated: 2022/11/06 18:59:09 by ssergiu          ###   ########.fr       */
+/*   Updated: 2022/11/07 20:15:31 by ssergiu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@
 # include <stdio.h>
 # include <sys/errno.h>
 # include <string.h>
-# define WIDTH 500
-# define HEIGHT 500
+# include <math.h>
+# define WIDTH 1920
+# define HEIGHT 1080
 
 typedef struct coords
 {
