@@ -6,7 +6,7 @@
 /*   By: ssergiu <ssergiu@student.42heilbronn.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/30 06:57:33 by ssergiu           #+#    #+#             */
-/*   Updated: 2022/11/07 20:33:58 by ssergiu          ###   ########.fr       */
+/*   Updated: 2022/11/09 10:11:22 by ssergiu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,44 +69,41 @@ void	draw_line(t_coords *pointA, t_coords *pointB, mlx_image_t* y_img)
 	double dX;
 	double dY;
 	double p;
-	double testx;
-	double testy;
+	double x;
+	double y;
 
 	//bresenham algorithm
-	testx = pointA->x;
-	testy = pointA->y;
-	printf("draw - pointB-x %f\n", pointB->x);
-	printf("draw - pointB-y %f\n", pointB->y);
-	printf("draw - pointA-x %f\n", pointA->x);
-	printf("draw - pointA-y %f\n", pointA->y);
-	printf("draw - test-x %f\n", testx);
-	printf("draw - test-y %f\n", testy);
-		dX = pointB->x - testx;
-		dY = pointB->y - testy;
-		p = (2 * dY)- dX;
-	while (testx < pointB->x)
+	x = pointA->x;
+	y = pointA->y;
+	dX = pointB->x - x;
+	dY = pointB->y - y;
+	p = 2 * dY- dX;
+	printf("x is %f\n", x);
+	printf("y is %f\n", y);
+	printf("pointB->x is %f\n", pointB->x);
+	printf("pointB->y is %f\n", pointB->y);
+	while (x < pointB->x)
 	{
 		if (p >= 0)
 		{
-			mlx_put_pixel(y_img, testx++, testy++, 0xFAFABB);
+			mlx_put_pixel(y_img, x++, y++, 0xFAFABB);
 			p = p + (2 * dY) - (2 * dX);
 		}
 		else if (p < 0)
 		{
-			mlx_put_pixel(y_img, testx++, testy, 0xFAFABB);
+			mlx_put_pixel(y_img, x++, y, 0xFAFABB);
 			p = p + (2 * dY);
 		}
 	}
 }
 
-mlx_image_t	*y_img;
 void	rotate_line(t_coords *pointA, t_coords *pointB, mlx_image_t *img)
 {
 	double dX;
 	double dY;
 	double radians;
 
-	radians = 5 * M_PI/180;
+	radians = 1 * M_PI/180;
 	dX = ( cos(radians) * (pointB->x - pointA->x)) - ( sin(radians) * (pointB->y -
 				pointA->y)) + pointA->x;
 	dY = ( sin(radians) * (pointB->x - pointA->x)) + ( cos(radians) * (pointB->y -
@@ -121,17 +118,39 @@ void	rotate_line(t_coords *pointA, t_coords *pointB, mlx_image_t *img)
 void my_keyhook(mlx_key_data_t keydata, void* param)
 {
 	t_data *data;
+	static mlx_image_t *image1 = NULL;
+	static mlx_image_t *image2 = NULL;
+	static mlx_image_t *image3 = NULL;
+	static mlx_image_t *image4 = NULL;
+	static mlx_image_t *image5 = NULL;
 	int x;
 
 	data = param;
 
 	x = 1;
+	if (keydata.key == MLX_KEY_Z && keydata.action == MLX_PRESS)
+	{
+		puts("HELLO");
+	}
 	if (keydata.key == MLX_KEY_X && keydata.action == MLX_PRESS)
 	{
 //		draw_line(data->coordsA, data->coordsC, data->img);
 //		printf("-- x %f and Y %f\n", data->coordsB->x, data->coordsB->y);
-		mlx_put_string(data->mlx, "test", 10, 20);
 		rotate_line(data->coordsA, data->coordsB, data->img);
+		mlx_delete_image(data->mlx, image1);
+		mlx_delete_image(data->mlx, image2);
+		mlx_delete_image(data->mlx, image3);
+		mlx_delete_image(data->mlx, image4);
+		mlx_delete_image(data->mlx, image5);
+		image1 = mlx_put_string(data->mlx, ft_itoa(data->coordsB->x), 20, 20);
+		image2 = mlx_put_string(data->mlx, ft_itoa(data->coordsB->y), 60, 20);
+		image3 = mlx_put_string(data->mlx, ft_itoa(data->coordsB->x - data->coordsA->x)
+				, 120, 20);
+		image4 = mlx_put_string(data->mlx, ft_itoa(data->coordsB->y - data->coordsA->y)
+				, 160, 20);
+		image5 = mlx_put_string(data->mlx, ft_itoa(2 * ((data->coordsB->x - 
+						data->coordsA->x) - (data->coordsB->y - data->coordsA->y)))
+						, 20, 40);
 	}
 
 	// If we RELEASE the 'K' key, print "World".
@@ -142,7 +161,14 @@ void my_keyhook(mlx_key_data_t keydata, void* param)
 	if (keydata.key == MLX_KEY_L && keydata.action == MLX_PRESS)
 	{
 		printf("L\n");
-		draw_line(data->coordsA, data->coordsB, data->img);
+		draw_line(data->coordsA, data->coordsC, data->img);
+	}
+	if (keydata.key == MLX_KEY_M && keydata.action == MLX_PRESS)
+	{
+		printf("D\n");
+		data->coordsC->x = 300;
+		data->coordsC->y = 600;
+		draw_line(data->coordsA, data->coordsC, data->img);
 	}
 
 }
@@ -157,12 +183,14 @@ int32_t	main(void)
 	pointA = (t_coords *)malloc(sizeof(t_coords));
 	pointB = (t_coords *)malloc(sizeof(t_coords));
 	pointC = (t_coords *)malloc(sizeof(t_coords));
-	pointA->x=200;
-	pointA->y=200;
-	pointB->x=500;
-	pointB->y=200;
-	pointC->x=412;
-	pointC->y=340;
+	pointA->x=10;
+	pointA->y=10;
+
+	pointB->x=100;
+	pointB->y=10;
+
+	pointC->x=350;
+	pointC->y=459;
 
 	data = (t_data *)malloc(sizeof(t_data));
 	data->coordsA = pointA;
@@ -173,7 +201,7 @@ int32_t	main(void)
 	if (!data->mlx)
 		return(1);
 	data->img = mlx_new_image(data->mlx, 1920, 1080);
-	mlx_image_to_window(data->mlx, data->img, 500, 500);
+	mlx_image_to_window(data->mlx, data->img, 1920, 1080);
 	/* Do stuff */
 	mlx_key_hook(data->mlx, &my_keyhook, data);
 	mlx_loop(data->mlx);
